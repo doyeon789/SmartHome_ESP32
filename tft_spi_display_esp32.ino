@@ -17,6 +17,7 @@ void setup(void)
 
   display.fillScreen(WHITE);
   display.setCursor(40, 20);
+  display.setRotation(2);
   display.setTextSize(2);
   display.setTextColor(BLUE);
   display.print("From Arduino");
