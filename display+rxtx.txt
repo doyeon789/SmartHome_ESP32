@@ -35,12 +35,11 @@ void setup(void)
 }
 
 int a = 0;
-void loop() {
-  char buf[20];
-  int len = snprintf(buf, sizeof(buf), "hello%d\r\n", a);
-  // snprintf가 buf에 포맷된 문자열을 넣고 길이를 반환
+char str[20] = "";
 
-  Serial.write((uint8_t*)buf, len);  // 원시 바이트로 전송
+void loop() {
   a++;
+  sprintf(str,"hello%d\r\n",a);
+  Serial.write(str);
   delay(1000);
 }
