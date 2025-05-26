@@ -77,7 +77,24 @@ int main(void) {
 				PORTB &= ~(1 << i);
 				else if (str[i + 8] == '1')
 				PORTB |= (1 << i);
-			}	
+			}
+			switch(str[11] - '0'){
+				case 1:
+					OCR1A = 0;
+					OCR1B = 255;
+					OCR1C = 0;
+					break;
+				case 2:
+					OCR1A = 255;
+					OCR1B = 0;
+					OCR1C = 0;
+					break;
+				default:
+					OCR1A = 0;
+					OCR1B = 0;
+					OCR1C = 0;
+					break;
+			}
 
 			idx = 0;
 			memset(str, 0, 20);
@@ -85,10 +102,5 @@ int main(void) {
 		else if (idx < 20 - 1) {
 			str[idx++] = received;
 		}
-		
-		OCR1A = 0xff; //R
-		OCR1B = 0xff; //G
-		OCR1C = 0xff; //B
 	}
-
 }
