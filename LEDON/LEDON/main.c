@@ -51,42 +51,41 @@ char rx0_ch(){
 int main(void) {
 	DDRA = 0xff;
 	DDRB = 0xff;
+	DDRD = 0xff;
 	
+	char received = "0";
 	char str[20] = "";  // ✅ STR_SIZE 사용
 	unsigned char idx = 0;
-	int values[20];  // 숫자 저장 배열
-	
 	usart0_init(103);
 	timer1_pwm_init();
-
-    /* Replace with your application code */
-
 	while (1) {
-		char received = rx0_ch();
+		received = rx0_ch();
+		
 		if (received == '\n' || received == '\r') {
 			str[idx] = '\0';     // 끝 표시
-			tx0_str(str);        // 문자열 출력
-			tx0_str("\n");
+			tx0_str(str);
+			tx0_str("\r\n");
 			
-			for(int i=0;i<8;i++){
-				if(values[i] == 0)
-				PORTA &= ~(1<<i);
-				else
-				PORTA |= (1<<i);
-			}
-			for(int j=0;j<=3;j++){
-				if(values[j+8] == 0)
-				PORTB &= ~(1<<j);
-				else
-				PORTB |= (1<<j);
-			}
+			for (int i = 0; i < 8; i++) {
+				if (str[i] == '0')
+				PORTA &= ~(1 << i);
+				else if (str[i] == '1')
+				PORTA |= (1 << i);
+			}		
+			for (int i = 0; i < 3; i++) {
+				if (str[i + 8] == '0')
+				PORTB &= ~(1 << i);
+				else if (str[i + 8] == '1')
+				PORTB |= (1 << i);
+			}	
+
 			idx = 0;
+			memset(str, 0, 20);
 		}
 		else if (idx < 20 - 1) {
-			str[idx] = received;
-			values[idx++] = atoi(received);
+			str[idx++] = received;
 		}
-	
+		
 		OCR1A = 0xff; //R
 		OCR1B = 0xff; //G
 		OCR1C = 0xff; //B
