@@ -1,0 +1,316 @@
+
+Motor.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000000  00800100  00800100  000001fa  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000001a6  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .comment      00000030  00000000  00000000  000001fa  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000022c  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000038  00000000  00000000  00000268  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   0000098c  00000000  00000000  000002a0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 0000087d  00000000  00000000  00000c2c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   0000030f  00000000  00000000  000014a9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000054  00000000  00000000  000017b8  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000426  00000000  00000000  0000180c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    0000005b  00000000  00000000  00001c32  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000028  00000000  00000000  00001c8d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	45 c0       	rjmp	.+138    	; 0x8c <__ctors_end>
+   2:	00 00       	nop
+   4:	4b c0       	rjmp	.+150    	; 0x9c <__bad_interrupt>
+   6:	00 00       	nop
+   8:	49 c0       	rjmp	.+146    	; 0x9c <__bad_interrupt>
+   a:	00 00       	nop
+   c:	47 c0       	rjmp	.+142    	; 0x9c <__bad_interrupt>
+   e:	00 00       	nop
+  10:	45 c0       	rjmp	.+138    	; 0x9c <__bad_interrupt>
+  12:	00 00       	nop
+  14:	43 c0       	rjmp	.+134    	; 0x9c <__bad_interrupt>
+  16:	00 00       	nop
+  18:	41 c0       	rjmp	.+130    	; 0x9c <__bad_interrupt>
+  1a:	00 00       	nop
+  1c:	3f c0       	rjmp	.+126    	; 0x9c <__bad_interrupt>
+  1e:	00 00       	nop
+  20:	3d c0       	rjmp	.+122    	; 0x9c <__bad_interrupt>
+  22:	00 00       	nop
+  24:	3b c0       	rjmp	.+118    	; 0x9c <__bad_interrupt>
+  26:	00 00       	nop
+  28:	39 c0       	rjmp	.+114    	; 0x9c <__bad_interrupt>
+  2a:	00 00       	nop
+  2c:	37 c0       	rjmp	.+110    	; 0x9c <__bad_interrupt>
+  2e:	00 00       	nop
+  30:	35 c0       	rjmp	.+106    	; 0x9c <__bad_interrupt>
+  32:	00 00       	nop
+  34:	33 c0       	rjmp	.+102    	; 0x9c <__bad_interrupt>
+  36:	00 00       	nop
+  38:	31 c0       	rjmp	.+98     	; 0x9c <__bad_interrupt>
+  3a:	00 00       	nop
+  3c:	2f c0       	rjmp	.+94     	; 0x9c <__bad_interrupt>
+  3e:	00 00       	nop
+  40:	2d c0       	rjmp	.+90     	; 0x9c <__bad_interrupt>
+  42:	00 00       	nop
+  44:	2b c0       	rjmp	.+86     	; 0x9c <__bad_interrupt>
+  46:	00 00       	nop
+  48:	29 c0       	rjmp	.+82     	; 0x9c <__bad_interrupt>
+  4a:	00 00       	nop
+  4c:	27 c0       	rjmp	.+78     	; 0x9c <__bad_interrupt>
+  4e:	00 00       	nop
+  50:	25 c0       	rjmp	.+74     	; 0x9c <__bad_interrupt>
+  52:	00 00       	nop
+  54:	23 c0       	rjmp	.+70     	; 0x9c <__bad_interrupt>
+  56:	00 00       	nop
+  58:	21 c0       	rjmp	.+66     	; 0x9c <__bad_interrupt>
+  5a:	00 00       	nop
+  5c:	1f c0       	rjmp	.+62     	; 0x9c <__bad_interrupt>
+  5e:	00 00       	nop
+  60:	1d c0       	rjmp	.+58     	; 0x9c <__bad_interrupt>
+  62:	00 00       	nop
+  64:	1b c0       	rjmp	.+54     	; 0x9c <__bad_interrupt>
+  66:	00 00       	nop
+  68:	19 c0       	rjmp	.+50     	; 0x9c <__bad_interrupt>
+  6a:	00 00       	nop
+  6c:	17 c0       	rjmp	.+46     	; 0x9c <__bad_interrupt>
+  6e:	00 00       	nop
+  70:	15 c0       	rjmp	.+42     	; 0x9c <__bad_interrupt>
+  72:	00 00       	nop
+  74:	13 c0       	rjmp	.+38     	; 0x9c <__bad_interrupt>
+  76:	00 00       	nop
+  78:	11 c0       	rjmp	.+34     	; 0x9c <__bad_interrupt>
+  7a:	00 00       	nop
+  7c:	0f c0       	rjmp	.+30     	; 0x9c <__bad_interrupt>
+  7e:	00 00       	nop
+  80:	0d c0       	rjmp	.+26     	; 0x9c <__bad_interrupt>
+  82:	00 00       	nop
+  84:	0b c0       	rjmp	.+22     	; 0x9c <__bad_interrupt>
+  86:	00 00       	nop
+  88:	09 c0       	rjmp	.+18     	; 0x9c <__bad_interrupt>
+	...
+
+0000008c <__ctors_end>:
+  8c:	11 24       	eor	r1, r1
+  8e:	1f be       	out	0x3f, r1	; 63
+  90:	cf ef       	ldi	r28, 0xFF	; 255
+  92:	d0 e1       	ldi	r29, 0x10	; 16
+  94:	de bf       	out	0x3e, r29	; 62
+  96:	cd bf       	out	0x3d, r28	; 61
+  98:	33 d0       	rcall	.+102    	; 0x100 <main>
+  9a:	83 c0       	rjmp	.+262    	; 0x1a2 <_exit>
+
+0000009c <__bad_interrupt>:
+  9c:	b1 cf       	rjmp	.-158    	; 0x0 <__vectors>
+
+0000009e <servo_init>:
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+
+void servo_init() {
+	TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << WGM11);
+  9e:	82 ea       	ldi	r24, 0xA2	; 162
+  a0:	8f bd       	out	0x2f, r24	; 47
+	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11);
+  a2:	8a e1       	ldi	r24, 0x1A	; 26
+  a4:	8e bd       	out	0x2e, r24	; 46
+	ICR1 = 40000;
+  a6:	80 e4       	ldi	r24, 0x40	; 64
+  a8:	9c e9       	ldi	r25, 0x9C	; 156
+  aa:	97 bd       	out	0x27, r25	; 39
+  ac:	86 bd       	out	0x26, r24	; 38
+
+	DDRB |= (1 << PB5) | (1 << PB6);
+  ae:	87 b3       	in	r24, 0x17	; 23
+  b0:	80 66       	ori	r24, 0x60	; 96
+  b2:	87 bb       	out	0x17, r24	; 23
+
+	OCR1A = 0;  // 서보 초기값 (필요하면 1500 정도로 초기화 가능)
+  b4:	1b bc       	out	0x2b, r1	; 43
+  b6:	1a bc       	out	0x2a, r1	; 42
+	OCR1B = 0;  // 모터 초기 PWM 0 (멈춤)
+  b8:	19 bc       	out	0x29, r1	; 41
+  ba:	18 bc       	out	0x28, r1	; 40
+  bc:	08 95       	ret
+
+000000be <servo_set_angle>:
+}
+
+
+void servo_set_angle(uint8_t angle) {
+	if (angle > 180) angle = 180;
+	uint16_t pulse = 2000 + ((uint32_t)angle * 4000) / 180;  // 1~2ms pulse
+  be:	85 3b       	cpi	r24, 0xB5	; 181
+  c0:	08 f0       	brcs	.+2      	; 0xc4 <servo_set_angle+0x6>
+  c2:	84 eb       	ldi	r24, 0xB4	; 180
+  c4:	28 2f       	mov	r18, r24
+  c6:	30 e0       	ldi	r19, 0x00	; 0
+  c8:	a0 ea       	ldi	r26, 0xA0	; 160
+  ca:	bf e0       	ldi	r27, 0x0F	; 15
+  cc:	55 d0       	rcall	.+170    	; 0x178 <__umulhisi3>
+  ce:	24 eb       	ldi	r18, 0xB4	; 180
+  d0:	30 e0       	ldi	r19, 0x00	; 0
+  d2:	40 e0       	ldi	r20, 0x00	; 0
+  d4:	50 e0       	ldi	r21, 0x00	; 0
+  d6:	2e d0       	rcall	.+92     	; 0x134 <__udivmodsi4>
+  d8:	20 53       	subi	r18, 0x30	; 48
+  da:	38 4f       	sbci	r19, 0xF8	; 248
+	OCR1A = pulse;
+  dc:	3b bd       	out	0x2b, r19	; 43
+  de:	2a bd       	out	0x2a, r18	; 42
+  e0:	08 95       	ret
+
+000000e2 <mortor_set_speed>:
+}
+
+void mortor_set_speed(uint8_t duty) {
+	if (duty > 255) duty = 255;
+	OCR1B = ((uint32_t)ICR1 * (255-duty)) / 255;  // Non-inverting 모드 기준
+  e2:	26 b5       	in	r18, 0x26	; 38
+  e4:	37 b5       	in	r19, 0x27	; 39
+  e6:	af ef       	ldi	r26, 0xFF	; 255
+  e8:	b0 e0       	ldi	r27, 0x00	; 0
+  ea:	a8 1b       	sub	r26, r24
+  ec:	b1 09       	sbc	r27, r1
+  ee:	53 d0       	rcall	.+166    	; 0x196 <__usmulhisi3>
+  f0:	2f ef       	ldi	r18, 0xFF	; 255
+  f2:	30 e0       	ldi	r19, 0x00	; 0
+  f4:	40 e0       	ldi	r20, 0x00	; 0
+  f6:	50 e0       	ldi	r21, 0x00	; 0
+  f8:	1d d0       	rcall	.+58     	; 0x134 <__udivmodsi4>
+  fa:	39 bd       	out	0x29, r19	; 41
+  fc:	28 bd       	out	0x28, r18	; 40
+  fe:	08 95       	ret
+
+00000100 <main>:
+}
+
+int main(void) {
+	servo_init();
+ 100:	ce df       	rcall	.-100    	; 0x9e <servo_init>
+
+	while (1) {
+		
+		mortor_set_speed(60);
+ 102:	8c e3       	ldi	r24, 0x3C	; 60
+ 104:	ee df       	rcall	.-36     	; 0xe2 <mortor_set_speed>
+		
+		servo_set_angle(0);
+ 106:	80 e0       	ldi	r24, 0x00	; 0
+ 108:	da df       	rcall	.-76     	; 0xbe <servo_set_angle>
+ 10a:	2f ef       	ldi	r18, 0xFF	; 255
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 10c:	83 ed       	ldi	r24, 0xD3	; 211
+ 10e:	90 e3       	ldi	r25, 0x30	; 48
+ 110:	21 50       	subi	r18, 0x01	; 1
+ 112:	80 40       	sbci	r24, 0x00	; 0
+ 114:	90 40       	sbci	r25, 0x00	; 0
+ 116:	e1 f7       	brne	.-8      	; 0x110 <main+0x10>
+ 118:	00 c0       	rjmp	.+0      	; 0x11a <main+0x1a>
+ 11a:	00 00       	nop
+		_delay_ms(1000);
+
+		servo_set_angle(90);
+ 11c:	8a e5       	ldi	r24, 0x5A	; 90
+ 11e:	cf df       	rcall	.-98     	; 0xbe <servo_set_angle>
+ 120:	2f ef       	ldi	r18, 0xFF	; 255
+ 122:	83 ed       	ldi	r24, 0xD3	; 211
+ 124:	90 e3       	ldi	r25, 0x30	; 48
+ 126:	21 50       	subi	r18, 0x01	; 1
+ 128:	80 40       	sbci	r24, 0x00	; 0
+ 12a:	90 40       	sbci	r25, 0x00	; 0
+ 12c:	e1 f7       	brne	.-8      	; 0x126 <main+0x26>
+ 12e:	00 c0       	rjmp	.+0      	; 0x130 <main+0x30>
+ 130:	00 00       	nop
+ 132:	e7 cf       	rjmp	.-50     	; 0x102 <main+0x2>
+
+00000134 <__udivmodsi4>:
+ 134:	a1 e2       	ldi	r26, 0x21	; 33
+ 136:	1a 2e       	mov	r1, r26
+ 138:	aa 1b       	sub	r26, r26
+ 13a:	bb 1b       	sub	r27, r27
+ 13c:	fd 01       	movw	r30, r26
+ 13e:	0d c0       	rjmp	.+26     	; 0x15a <__udivmodsi4_ep>
+
+00000140 <__udivmodsi4_loop>:
+ 140:	aa 1f       	adc	r26, r26
+ 142:	bb 1f       	adc	r27, r27
+ 144:	ee 1f       	adc	r30, r30
+ 146:	ff 1f       	adc	r31, r31
+ 148:	a2 17       	cp	r26, r18
+ 14a:	b3 07       	cpc	r27, r19
+ 14c:	e4 07       	cpc	r30, r20
+ 14e:	f5 07       	cpc	r31, r21
+ 150:	20 f0       	brcs	.+8      	; 0x15a <__udivmodsi4_ep>
+ 152:	a2 1b       	sub	r26, r18
+ 154:	b3 0b       	sbc	r27, r19
+ 156:	e4 0b       	sbc	r30, r20
+ 158:	f5 0b       	sbc	r31, r21
+
+0000015a <__udivmodsi4_ep>:
+ 15a:	66 1f       	adc	r22, r22
+ 15c:	77 1f       	adc	r23, r23
+ 15e:	88 1f       	adc	r24, r24
+ 160:	99 1f       	adc	r25, r25
+ 162:	1a 94       	dec	r1
+ 164:	69 f7       	brne	.-38     	; 0x140 <__udivmodsi4_loop>
+ 166:	60 95       	com	r22
+ 168:	70 95       	com	r23
+ 16a:	80 95       	com	r24
+ 16c:	90 95       	com	r25
+ 16e:	9b 01       	movw	r18, r22
+ 170:	ac 01       	movw	r20, r24
+ 172:	bd 01       	movw	r22, r26
+ 174:	cf 01       	movw	r24, r30
+ 176:	08 95       	ret
+
+00000178 <__umulhisi3>:
+ 178:	a2 9f       	mul	r26, r18
+ 17a:	b0 01       	movw	r22, r0
+ 17c:	b3 9f       	mul	r27, r19
+ 17e:	c0 01       	movw	r24, r0
+ 180:	a3 9f       	mul	r26, r19
+ 182:	70 0d       	add	r23, r0
+ 184:	81 1d       	adc	r24, r1
+ 186:	11 24       	eor	r1, r1
+ 188:	91 1d       	adc	r25, r1
+ 18a:	b2 9f       	mul	r27, r18
+ 18c:	70 0d       	add	r23, r0
+ 18e:	81 1d       	adc	r24, r1
+ 190:	11 24       	eor	r1, r1
+ 192:	91 1d       	adc	r25, r1
+ 194:	08 95       	ret
+
+00000196 <__usmulhisi3>:
+ 196:	f0 df       	rcall	.-32     	; 0x178 <__umulhisi3>
+
+00000198 <__usmulhisi3_tail>:
+ 198:	b7 ff       	sbrs	r27, 7
+ 19a:	08 95       	ret
+ 19c:	82 1b       	sub	r24, r18
+ 19e:	93 0b       	sbc	r25, r19
+ 1a0:	08 95       	ret
+
+000001a2 <_exit>:
+ 1a2:	f8 94       	cli
+
+000001a4 <__stop_program>:
+ 1a4:	ff cf       	rjmp	.-2      	; 0x1a4 <__stop_program>
