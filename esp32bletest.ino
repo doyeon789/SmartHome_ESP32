@@ -59,7 +59,17 @@ void setup() {
   Serial.println("✅ BLE setup complete! You can now connect in your phone app.");
 }
 
+
 void loop() {
-  // 여기에 계속 반복 실행할 로직이 있다면 작성
-  delay(1000);
+  if (deviceConnected) {
+    String value = pCharacteristic->getValue();
+
+    if (value.length() > 0) {
+      Serial.println(value);
+
+      pCharacteristic->setValue("");  // 데이터 초기화
+    }
+  }
+
+  delay(100);
 }
