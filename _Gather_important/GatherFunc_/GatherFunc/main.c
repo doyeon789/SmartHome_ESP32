@@ -58,21 +58,23 @@ void servo_set_angle(uint8_t angle) {
 int main(void) {
 	DDRA = 0xff;
 	DDRB = 0xff;
-	DDRD = 0xff;
-	DDRC = 0xff;
+	DDRD |= (1 << PD0) | (1 << PD1) | (1 << PD2);
 	
 	char received = "0";
 	char str[20] = "";  // ✅ STR_SIZE 사용
 	unsigned char idx = 0;
+	int rgb_state = 0;
+	
 	servo_init();
 	usart0_init(103);
+	
 	while (1) {
 		received = rx0_ch();
 		if (received == '\n' || received == '\r') {
 			str[idx] = '\0';     // 끝 표시
-
-			
-			for (int i = 0; i < 8; i++) {
+			tx0_str(str);
+			tx0_str("");
+			for (int i = 0; i < 8; i++) { // 01234567
 				if (str[i] == '0')
 				PORTA &= ~(1 << i);
 				else if (str[i] == '1')
@@ -84,22 +86,21 @@ int main(void) {
 				else if (str[i + 8] == '1')
 				PORTB |= (1 << i);
 			}
-			switch(str[11] - '0'){
-				case 1:
-					PORTC &= ~(1<<PC0);
-					PORTC |= (1<<PC1);
-					PORTC &= ~(1<<PC2);
-					break;
-				case 2:
-					PORTC |= (1<<PC0);
-					PORTC &= ~(1<<PC1);
-					PORTC &= ~(1<<PC2);
-					break;
-				default:
-					PORTC &= ~(1<<PC0);
-					PORTC &= ~(1<<PC1);
-					PORTC &= ~(1<<PC2);
-					break;
+			rgb_state = str[11] - '0';
+			if(rgb_state == 0){ // 색 지정 이상함
+				PORTD &= ~(1<<PD0);
+				PORTD &= ~(1<<PD1);
+				PORTD &= ~(1<<PD2);
+			}
+			if(rgb_state == 1){ 
+				PORTD &= ~(1<<PD0);
+				PORTD |= (1<<PD1);
+				PORTD &= ~(1<<PD2);
+			}
+			if(rgb_state = 2){ 
+				PORTD &= (1<<PD0);
+				PORTD &= ~(1<<PD1);
+				PORTD |= ~(1<<PD2);
 			}
 			switch(str[12] - '0'){
 				case 0:
@@ -109,8 +110,7 @@ int main(void) {
 				servo_set_angle(90);
 				break;
 			}
-			switch(str[13] - '0'){ // 모터 제어 - > 현재 모터 제어 안됨
-				
+			switch(str[13] - '0'){
 				case 0:
 				mortor_set_speed(0);
 				break;
