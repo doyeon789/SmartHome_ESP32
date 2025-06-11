@@ -33,7 +33,7 @@ void setup(void)
   V_display.fillRect(150, 200, 100, 100, RED);  // 여유 있게 위치 조정
 }
 
-char str[40] = "10101010101110\r\n";
+char str[40] = "11111111111002\r\n";
 
 char r_str[100] = "";  // 수신 버퍼
 int idx = 0;           // 현재 위치
