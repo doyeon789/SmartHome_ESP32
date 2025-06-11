@@ -29,6 +29,26 @@ void tx0_str(unsigned char *str){
 	}
 }
 
+void tx0_str(unsigned char *str){
+	while(*str){tx0_ch(*str++);}
+}
+void adc_init(){
+	DDRF &= ~(3<<0);
+	ADMUX = 0;
+	ADCSRA = (1<<ADEN) | (7<<ADPS0);
+}
+unsigned short read_adc() {
+	ADCSRA |= (1<<ADSC);
+	while((ADCSRA & (1<<ADIF)) != (1<<ADIF));
+	unsigned char adc_low = ADCL;
+	unsigned char adc_high = ADCH;
+	
+	if(ADMUX == 0)	ADMUX = 1;
+	else if(ADMUX == 1)	ADMUX = 0;
+	
+	return((unsigned short)adc_high << 8) | (unsigned short)adc_low;;
+}
+
 char rx0_ch(){
 	while(!(UCSR0A & (1<<RXC0)));
 	return UDR0;
@@ -61,32 +81,41 @@ int main(void) {
 	DDRD |= (1 << PD0) | (1 << PD1) | (1 << PD2);
 	
 	char received = "0";
-	char str[20] = "";  // ✅ STR_SIZE 사용
+	char r_str[20] = "";
 	unsigned char idx = 0;
 	int rgb_state = 0;
 	
+	char s_str[20] = "";
+	unsigned int cds = 0;	
+	unsigned int waterSensor = 0;
+		
+	
 	servo_init();
+	adc_init();
 	usart0_init(103);
 	
 	while (1) {
+		cds = read_adc();
+		waterSensor = read_adc();
+		sprintf(s_str,"cds: %d, water: %d\r\n",cds,waterSensor);
+		tx0_str(s_str);
+		
 		received = rx0_ch();
 		if (received == '\n' || received == '\r') {
-			str[idx] = '\0';     // 끝 표시
-			tx0_str(str);
-			tx0_str("");
+			r_str[idx] = '\0';     // 끝 표시
 			for (int i = 0; i < 8; i++) { // 01234567
-				if (str[i] == '0')
+				if (r_str[i] == '0')
 				PORTA &= ~(1 << i);
-				else if (str[i] == '1')
+				else if (r_str[i] == '1')
 				PORTA |= (1 << i);
 			}		
 			for (int i = 0; i < 3; i++) {
-				if (str[i + 8] == '0')
+				if (r_str[i + 8] == '0')
 				PORTB &= ~(1 << i);
-				else if (str[i + 8] == '1')
+				else if (r_str[i + 8] == '1')
 				PORTB |= (1 << i);
 			}
-			rgb_state = str[11] - '0';
+			rgb_state = r_str[11] - '0';
 			if(rgb_state == 0){ // 색 지정 이상함
 				PORTD &= ~(1<<PD0);
 				PORTD &= ~(1<<PD1);
@@ -102,7 +131,7 @@ int main(void) {
 				PORTD &= ~(1<<PD1);
 				PORTD |= ~(1<<PD2);
 			}
-			switch(str[12] - '0'){
+			switch(r_str[12] - '0'){
 				case 0:
 				servo_set_angle(0);
 				break;
@@ -110,7 +139,7 @@ int main(void) {
 				servo_set_angle(90);
 				break;
 			}
-			switch(str[13] - '0'){
+			switch(r_str[13] - '0'){
 				case 0:
 				mortor_set_speed(0);
 				break;
@@ -126,10 +155,10 @@ int main(void) {
 			}
 
 			idx = 0;
-			memset(str, 0, 20);
+			memset(r_str, 0, 20);
 		}
 		else if (idx < 20 - 1) {
-			str[idx++] = received;
+			r_str[idx++] = received;
 		}
 	}
 }
