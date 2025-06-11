@@ -4,12 +4,13 @@
  * Created: 2025-06-09 오후 8:16:17
  * Author : user
  */ 
- 
+
 #define F_CPU 16000000
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <string.h>
+	
 	
 void usart0_init(unsigned int UBRR0){
 	UBRR0H = (unsigned char)(UBRR0>>8);
@@ -27,15 +28,14 @@ void tx0_str(unsigned char *str){
 		tx0_ch(*str++);
 	}
 }
+
 char rx0_ch(){
 	while(!(UCSR0A & (1<<RXC0)));
 	return UDR0;
 }
-
-
 void mortor_set_speed(uint8_t duty) {
 	if (duty > 255) duty = 255;
-	OCR1B = ((uint32_t)ICR1 * (255-duty)) / 255; 
+	OCR1B = ((uint32_t)ICR1 * (255-duty)) / 255;
 }
 
 void servo_init() {
@@ -56,78 +56,75 @@ void servo_set_angle(uint8_t angle) {
 
 
 int main(void) {
-	
-	servo_init();
-	
-	
 	DDRA = 0xff;
 	DDRB = 0xff;
-	DDRD = 0xff
-	DDRC = 0xff;
+	DDRD |= (1 << PD0) | (1 << PD1) | (1 << PD2);
 	
 	char received = "0";
-	char str[20] = "";
+	char str[20] = "";  // ✅ STR_SIZE 사용
 	unsigned char idx = 0;
+	int rgb_state = 0;
+	
+	servo_init();
 	usart0_init(103);
+	
 	while (1) {
 		received = rx0_ch();
-		
 		if (received == '\n' || received == '\r') {
 			str[idx] = '\0';     // 끝 표시
 			tx0_str(str);
-			tx0_str("\r\n");
-			
-			for (int i = 0; i < 8; i++) { // PORTA LED 제어
+			tx0_str("");
+			for (int i = 0; i < 8; i++) { // 01234567
 				if (str[i] == '0')
 				PORTA &= ~(1 << i);
 				else if (str[i] == '1')
 				PORTA |= (1 << i);
 			}		
-			for (int i = 0; i < 3; i++) { // PORTB LED 제어
+			for (int i = 0; i < 3; i++) {
 				if (str[i + 8] == '0')
 				PORTB &= ~(1 << i);
 				else if (str[i + 8] == '1')
 				PORTB |= (1 << i);
 			}
-			switch(str[11] - '0'){ // RGB LED 제어
-				case 1:
-					PORTC &= ~(1<<PC0);
-					PORTC |= (1<<PC1);
-					PORTC &= ~(1<<PC2);
-					break;
-				case 2:
-					PORTC |= (1<<PC0);
-					PORTC &= ~(1<<PC1);
-					PORTC &= ~(1<<PC2);
-					break;
-				default:
-					PORTC &= ~(1<<PC0);
-					PORTC &= ~(1<<PC1);
-					PORTC &= ~(1<<PC2);
-					break;
+			rgb_state = str[11] - '0';
+			if(rgb_state == 0){ // 색 지정 이상함
+				PORTD &= ~(1<<PD0);
+				PORTD &= ~(1<<PD1);
+				PORTD &= ~(1<<PD2);
+			}
+			if(rgb_state == 1){ 
+				PORTD &= ~(1<<PD0);
+				PORTD |= (1<<PD1);
+				PORTD &= ~(1<<PD2);
+			}
+			if(rgb_state = 2){ 
+				PORTD &= (1<<PD0);
+				PORTD &= ~(1<<PD1);
+				PORTD |= ~(1<<PD2);
 			}
 			switch(str[12] - '0'){
 				case 0:
-					servo_set_angle(0);
-					break;
+				servo_set_angle(0);
+				break;
 				case 1:
 				servo_set_angle(90);
-					break;
+				break;
 			}
-			switch(str[13] - '0'){ // 모터 제어	
+			switch(str[13] - '0'){
 				case 0:
-					mortor_set_speed(0);
-					break;
+				mortor_set_speed(0);
+				break;
 				case 1:
-					mortor_set_speed(60);
-					break;
+				mortor_set_speed(30);
+				break;
 				case 2:
-					mortor_set_speed(90);
-					break;
+				mortor_set_speed(50);
+				break;
 				default:
-					mortor_set_speed(120);
-					break;
+				mortor_set_speed(60);
+				break;
 			}
+
 			idx = 0;
 			memset(str, 0, 20);
 		}
