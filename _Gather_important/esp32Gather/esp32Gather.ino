@@ -98,14 +98,6 @@ void setup(void)
   V_display.setCursor(40, 20);
   V_display.setTextSize(2);
   V_display.setTextColor(BLUE);
-  V_display.print("V_SPI");
-
-  V_display.setCursor(25, 50);
-  V_display.print("This is the text");
-
-  V_display.setCursor(70, 80);
-  V_display.print("statement");
-
   V_display.fillRect(150, 200, 100, 100, RED);  // 여유 있게 위치 조정
 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  
