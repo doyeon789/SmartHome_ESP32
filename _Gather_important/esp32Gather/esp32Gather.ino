@@ -8,7 +8,7 @@
 #define V_TFT_SCK    18
 #define V_TFT_MOSI   23
 #define V_TFT_MISO   19
-#define V_TFT_CS     5a
+#define V_TFT_CS     5
 #define V_TFT_DC      2
 #define V_TFT_RESET   4
 
