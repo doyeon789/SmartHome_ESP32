@@ -1,6 +1,9 @@
 #include <Arduino_GFX_Library.h>
 #include <HardwareSerial.h>
 #include <Adafruit_SSD1306.h>
+#include <DHT.h>
+
+DHT dht(16, DHT11);
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -88,7 +91,7 @@ void setup(void)
 {
   Serial.begin(9600); //기존의 기본 시리얼
 
-    V_display.begin();
+  V_display.begin();
   V_display.setRotation(3);
 
   V_display.fillScreen(WHITE);
@@ -109,6 +112,8 @@ void setup(void)
   display.clearDisplay();
   display.drawBitmap(0, 0,  MarilynMonroe, 128, 64, WHITE);
   display.display();
+
+  dht.begin();
 }
 
 char str[40] = "11111111210\r\n";
@@ -120,7 +125,19 @@ void loop() {
   Serial.write(str);
   delay(1000);
 
-  // 수신
+  float temp = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  V_display.setCursor(50, 50);
+  V_display.print("Temp: ");
+  V_display.print(temp);
+  V_display.print(" C");
+
+  V_display.setCursor(50, 70);
+  V_display.print("Humidity: ");
+  V_display.print(humidity);
+  V_display.print('%');
+
   while (Serial.available()) {
     char c = Serial.read();
 
