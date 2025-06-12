@@ -109,13 +109,7 @@ int main(void) {
 				else if (r_str[i] == '1')
 				PORTA |= (1 << i);
 			}		
-			for (int i = 0; i < 3; i++) {
-				if (r_str[i + 8] == '0')
-				PORTB &= ~(1 << i);
-				else if (r_str[i + 8] == '1')
-				PORTB |= (1 << i);
-			}
-			rgb_state = r_str[11] - '0';
+			rgb_state = r_str[8] - '0';
 			if(rgb_state == 0){ // 색 지정 이상함
 				PORTD &= ~(1<<PD0);
 				PORTD &= ~(1<<PD1);
@@ -131,7 +125,7 @@ int main(void) {
 				PORTD &= ~(1<<PD1);
 				PORTD |= ~(1<<PD2);
 			}
-			switch(r_str[12] - '0'){
+			switch(r_str[9] - '0'){
 				case 0:
 				servo_set_angle(0);
 				break;
@@ -139,7 +133,7 @@ int main(void) {
 				servo_set_angle(90);
 				break;
 			}
-			switch(r_str[13] - '0'){
+			switch(r_str[10] - '0'){
 				case 0:
 				mortor_set_speed(0);
 				break;
