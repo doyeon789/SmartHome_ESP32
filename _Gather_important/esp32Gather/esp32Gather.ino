@@ -93,11 +93,9 @@ void setup(void)
 
   V_display.begin();
   V_display.setRotation(3);
-
-  V_display.fillScreen(WHITE);
   V_display.setCursor(40, 20);
   V_display.setTextSize(2);
-  V_display.setTextColor(BLUE);
+  V_display.setTextColor(BLUE,WHITE);
   V_display.fillRect(150, 200, 100, 100, RED);  // 여유 있게 위치 조정
 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  
