@@ -29,9 +29,6 @@ void tx0_str(unsigned char *str){
 	}
 }
 
-void tx0_str(unsigned char *str){
-	while(*str){tx0_ch(*str++);}
-}
 void adc_init(){
 	DDRF &= ~(3<<0);
 	ADMUX = 0;
@@ -88,7 +85,6 @@ int main(void) {
 	char s_str[20] = "";
 	unsigned int cds = 0;	
 	unsigned int waterSensor = 0;
-		
 	
 	servo_init();
 	adc_init();
@@ -97,9 +93,9 @@ int main(void) {
 	while (1) {
 		cds = read_adc();
 		waterSensor = read_adc();
-		sprintf(s_str,"cds: %d, water: %d\r\n",cds,waterSensor);
+		sprintf(s_str,"%d,%d\r\n",cds,waterSensor);
 		tx0_str(s_str);
-		
+
 		received = rx0_ch();
 		if (received == '\n' || received == '\r') {
 			r_str[idx] = '\0';     // 끝 표시
@@ -110,17 +106,17 @@ int main(void) {
 				PORTA |= (1 << i);
 			}		
 			rgb_state = r_str[8] - '0';
-			if(rgb_state == 0){ // 색 지정 이상함
+			if(rgb_state == 0){ // 꺼짐
 				PORTD &= ~(1<<PD0);
 				PORTD &= ~(1<<PD1);
 				PORTD &= ~(1<<PD2);
 			}
-			if(rgb_state == 1){ 
+			else if(rgb_state == 1){ // 초록
 				PORTD &= ~(1<<PD0);
 				PORTD |= (1<<PD1);
 				PORTD &= ~(1<<PD2);
 			}
-			if(rgb_state = 2){ 
+			else if(rgb_state = 2){ //빨강
 				PORTD &= (1<<PD0);
 				PORTD &= ~(1<<PD1);
 				PORTD |= ~(1<<PD2);
@@ -144,7 +140,7 @@ int main(void) {
 				mortor_set_speed(50);
 				break;
 				default:
-				mortor_set_speed(60);
+				mortor_set_speed(70);
 				break;
 			}
 
@@ -154,5 +150,6 @@ int main(void) {
 		else if (idx < 20 - 1) {
 			r_str[idx++] = received;
 		}
+		
 	}
 }
