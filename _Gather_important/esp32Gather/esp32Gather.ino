@@ -118,12 +118,15 @@ void loop() {
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
 
-  V_display.setCursor(50, 50);
+  V_display.setTextColor(BLUE, WHITE); // 글자 파란색, 배경 흰색
+  V_display.setTextSize(2);
+
+  V_display.setCursor(10, 20);
   V_display.print("Temp: ");
   V_display.print(temp);
   V_display.print(" C");
 
-  V_display.setCursor(50, 70);
+  V_display.setCursor(10, 50);
   V_display.print("Humidity: ");
   V_display.print(humidity);
   V_display.print('%');
@@ -133,13 +136,23 @@ void loop() {
 
     if (c == '\n' || c == '\r') {
       if (idx > 0) {
-        r_str[idx] = '\0';  // 문자열 끝 표시
+        r_str[idx] = '\0'; 
         Serial.println(r_str);
-        idx = 0;            // 버퍼 초기화
+        int brightness = 0;
+        int water = 0;
+        char* token = strtok(r_str, ",");
+        if (token != NULL) {
+          brightness = atoi(token);
+          token = strtok(NULL, ",");
+          if (token != NULL) {
+            water = atoi(token);
+          }
+        }
+        idx = 0;  // 수신 버퍼 초기화
       }
     } else {
       if (idx < sizeof(r_str) - 1) {
-        r_str[idx++] = c;   // 버퍼에 저장
+        r_str[idx++] = c;
       }
     }
   }
