@@ -3,7 +3,13 @@
 #include <Adafruit_SSD1306.h>
 #include <DHT.h>
 
-DHT dht(16, DHT11);
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
+
+#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -15,10 +21,33 @@ DHT dht(16, DHT11);
 #define V_TFT_DC      2
 #define V_TFT_RESET   4
 
+DHT dht(16, DHT11);
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 Arduino_ESP32SPI V_bus = Arduino_ESP32SPI(V_TFT_DC, V_TFT_CS, V_TFT_SCK, V_TFT_MOSI, V_TFT_MISO);
 Arduino_ILI9488 V_display = Arduino_ILI9488(&V_bus, V_TFT_RESET);
+
+BLEServer* pServer = nullptr;
+BLECharacteristic* pCharacteristic = nullptr;
+bool deviceConnected = false;
+
+// 👉 콜백 클래스 정의
+class MyServerCallbacks: public BLEServerCallbacks {
+  void onConnect(BLEServer* pServer) {
+    deviceConnected = true;
+    Serial.println("✅ Device connected");
+  }
+
+  void onDisconnect(BLEServer* pServer) {
+    deviceConnected = false;
+    Serial.println("❌ Device disconnected");
+
+    delay(100);  // 잠깐 기다린 뒤
+    BLEDevice::startAdvertising();  // 💡 다시 광고 시작
+    Serial.println("📢 Advertising restarted");
+  }
+};
 
 const unsigned char MarilynMonroe[] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xf8, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -90,6 +119,35 @@ const unsigned char MarilynMonroe[] PROGMEM = {
 void setup(void)
 {
   Serial.begin(9600); //기존의 기본 시리얼
+  Serial.println("🚀 Starting BLE work!");
+
+  // BLE 초기화
+  BLEDevice::init("MyESP32");
+
+  // 서버, 서비스, 특성 생성
+  pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());  // 콜백 등록
+
+  BLEService* pService = pServer->createService(SERVICE_UUID);
+
+  pCharacteristic = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID,
+                      BLECharacteristic::PROPERTY_READ |
+                      BLECharacteristic::PROPERTY_WRITE
+                    );
+
+  pCharacteristic->setValue("Hello World says ESP32!");
+  pService->start();
+
+  // 광고 설정 및 시작
+  BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->setScanResponse(true);
+  pAdvertising->setMinPreferred(0x06);  // iOS compatibility
+  pAdvertising->setMinPreferred(0x12);
+  BLEDevice::startAdvertising();
+
+  Serial.println("✅ BLE setup complete! You can now connect in your phone app.");
 
   V_display.begin();
   V_display.setRotation(3);
@@ -106,14 +164,34 @@ void setup(void)
   dht.begin();
 }
 
-char str[40] = "11111111210\r\n";
-
 char r_str[100] = "";  // 수신 버퍼
 int idx = 0;           // 현재 위치
 
 void loop() {
-  Serial.write(str);
-  delay(1000);
+  if (deviceConnected) {
+    String value = pCharacteristic->getValue();
+
+    if (value.length() > 0) {
+      char input[] = "0,00000000,0,0,24,0,0";
+      int values[10];  // 최대 10개까지 저장 가능
+      int i = 0;
+    }
+    char* token = strtok(input, ",");
+    while (token != NULL && i < 10) {
+      values[i++] = atoi(token);  // 문자열을 정수로 변환하여 저장
+      token = strtok(NULL, ",");  
+    }
+      // 결과 확인
+    for (int j = 0; j < i; j++) {
+      Serial.print("values[");
+      Serial.print(j);
+      Serial.print("] = ");
+      Serial.println(values[j]);
+    }
+
+      pCharacteristic->setValue("");  // 데이터 초기화
+    }
+  }
 
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
@@ -156,4 +234,5 @@ void loop() {
       }
     }
   }
+  delay(1000);
 }
