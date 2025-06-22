@@ -231,7 +231,7 @@ void loop() {
   V_display.print(parts[1][0] == '1' ? "ON " : "OFF");
   V_display.setCursor(0,65);
   V_display.print("LED2 : ");
-  V_display.print(parts[1][1] == '2' ? "ON " : "OFF");
+  V_display.print(parts[1][1] == '1' ? "ON " : "OFF");
   V_display.setCursor(0,85);
   V_display.print("LED3 : ");
   V_display.print(parts[1][2] == '1' ? "ON " : "OFF");
@@ -297,5 +297,4 @@ void loop() {
   V_display.print(humidity);
   V_display.print('%');
   
-  delay(1000);
 }
