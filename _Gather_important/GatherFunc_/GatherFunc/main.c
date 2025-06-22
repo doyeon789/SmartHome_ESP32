@@ -91,14 +91,16 @@ int main(void) {
 	usart0_init(103);
 	
 	while (1) {
+		/*
 		cds = read_adc();
 		waterSensor = read_adc();
 		sprintf(s_str,"%d,%d\r\n",cds,waterSensor);
-		tx0_str(s_str);
+		tx0_str(s_str);*/
 
 		received = rx0_ch();
 		if (received == '\n' || received == '\r') {
 			r_str[idx] = '\0';     // 끝 표시
+
 			for (int i = 0; i < 8; i++) { // 01234567
 				if (r_str[i] == '0')
 				PORTA &= ~(1 << i);
