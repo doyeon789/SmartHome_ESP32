@@ -123,10 +123,9 @@ void setup(void)
   Wire.begin(21, 22);  // 예: Wire.begin(21, 22);
 
   V_display.begin();
-  V_display.fillScreen(BLACK);
+  V_display.fillScreen(WHITE);
   V_display.setRotation(3);
-  V_display.setTextSize(2);
-  V_display.setTextColor(BLUE,WHITE);
+  V_display.setTextColor(CYAN,WHITE);
 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  
   display.clearDisplay();
@@ -162,22 +161,20 @@ void setup(void)
   BLEDevice::startAdvertising();
 }
 // led rgb window motor
-char str[40] = "00000000 0 0 0\r\n";
+char str[40] = "00000000000\r\n";
 
 char r_str[100] = "";  // 수신 버퍼
 int idx = 0;           // 현재 위치
 
 void loop() {
-  
+  static String parts[10];
+
   // BLE 통신을 받아옴
   if (deviceConnected) {
     String value = pCharacteristic->getValue();
 
     if (value.length() > 0) {
-      Serial.println(value);
-
       // 최대 10개 항목 저장 가능한 배열
-      String parts[10];
       int index = 0;
 
       while (value.length() > 0) {
@@ -192,13 +189,11 @@ void loop() {
         value = value.substring(commaIndex + 1);
       }
 
-      // 배열 출력 테스트
-      for (int i = 0; i < index; i++) {
-        Serial.print("Part[");
-        Serial.print(i);
-        Serial.print("]: ");
-        Serial.println(parts[i]);
-      }
+      Serial.write(parts[1].c_str()); //led
+      Serial.write(parts[3].c_str()); //rgb
+      Serial.write(parts[6].c_str()); //motor1
+      Serial.write(parts[2].c_str()); //motor2
+      Serial.write('\n');
 
       // 데이터 초기화
       pCharacteristic->setValue("");
@@ -213,7 +208,7 @@ void loop() {
     if (c == '\n' || c == '\r') {
       if (idx > 0) {
         r_str[idx] = '\0';  // 문자열 끝 표시
-        Serial.println(r_str);
+        //Serial.println(r_str);
         idx = 0;            // 버퍼 초기화
       }
     } else {
@@ -226,12 +221,78 @@ void loop() {
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
 
-  V_display.setCursor(50, 50);
+// 1층
+  V_display.setCursor(0,10);
+  V_display.setTextSize(3);
+  V_display.print("1F");
+  V_display.setTextSize(2);
+  V_display.setCursor(0,45);
+  V_display.print("LED1 : ");
+  V_display.print(parts[1][0] == '1' ? "ON " : "OFF");
+  V_display.setCursor(0,65);
+  V_display.print("LED2 : ");
+  V_display.print(parts[1][1] == '2' ? "ON " : "OFF");
+  V_display.setCursor(0,85);
+  V_display.print("LED3 : ");
+  V_display.print(parts[1][2] == '1' ? "ON " : "OFF");
+  V_display.setCursor(0,105);
+  V_display.print("LED4 : ");
+  V_display.print(parts[1][3] == '1' ? "ON " : "OFF");
+  V_display.setCursor(0,125);
+  V_display.print("LED5 : ");
+  V_display.print(parts[1][4] == '1' ? "ON " : "OFF");
+  V_display.setCursor(0,150);
+  V_display.print("Fan Stage : ");
+  if (parts[2] == "0") {
+    V_display.print("OFF");
+  } else {
+    V_display.print(parts[2] + "  ");
+  }
+  V_display.setCursor(0,175);
+  V_display.print("Air conditioner : ");
+  V_display.print(parts[3][0] == '1' ? "ON " : "OFF");
+  V_display.setCursor(0,195);
+  V_display.print("Desired Temp : ");
+  V_display.print(parts[4][0]);
+  V_display.print(parts[4][1]);
+  V_display.print(" C");
+
+  V_display.setCursor(0,220);
+  V_display.print("TV : ");
+  if (parts[5] == "0") {
+    V_display.print("OFF");
+  } else {
+    V_display.print(parts[5] + "  ");
+  }
+
+  //2층
+  V_display.setCursor(280,10);
+  V_display.setTextSize(3);
+  V_display.print("2F");
+  V_display.setTextSize(2);
+  V_display.setCursor(280,45);
+  V_display.print("LED1 : ");
+  V_display.print(parts[1][0] == '1' ? "ON " : "OFF");
+  V_display.setCursor(280,65);
+  V_display.print("LED2 : ");
+  V_display.print(parts[1][1] == '2' ? "ON " : "OFF");
+  V_display.setCursor(280,85);
+  V_display.print("LED3 : ");
+  V_display.print(parts[1][2] == '1' ? "ON " : "OFF");
+  V_display.setCursor(280,110);
+  V_display.print("Window : ");
+  V_display.print(parts[6][0] == '1' ? "Open  " : "Closed");
+
+
+  // 그 밖
+  V_display.setCursor(280,245);
+  V_display.print("AutoMode : ");
+  V_display.print(parts[0][0] == '1' ? "ON " : "OFF");
+  V_display.setCursor(280, 270);
   V_display.print("Temp: ");
   V_display.print(temp);
   V_display.print(" C");
-
-  V_display.setCursor(50, 70);
+  V_display.setCursor(280, 290);
   V_display.print("Humidity: ");
   V_display.print(humidity);
   V_display.print('%');
