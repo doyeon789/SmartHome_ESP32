@@ -2,14 +2,18 @@
 #include <HardwareSerial.h>
 #include <Adafruit_SSD1306.h>
 #include <DHT.h>
-
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 
+DHT dht(16, DHT11);
+
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
+BLEServer* pServer = nullptr;
+BLECharacteristic* pCharacteristic = nullptr;
+bool deviceConnected = false;
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -20,17 +24,6 @@
 #define V_TFT_CS     5
 #define V_TFT_DC      2
 #define V_TFT_RESET   4
-
-DHT dht(16, DHT11);
-
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
-Arduino_ESP32SPI V_bus = Arduino_ESP32SPI(V_TFT_DC, V_TFT_CS, V_TFT_SCK, V_TFT_MOSI, V_TFT_MISO);
-Arduino_ILI9488 V_display = Arduino_ILI9488(&V_bus, V_TFT_RESET);
-
-BLEServer* pServer = nullptr;
-BLECharacteristic* pCharacteristic = nullptr;
-bool deviceConnected = false;
 
 // 👉 콜백 클래스 정의
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -48,6 +41,12 @@ class MyServerCallbacks: public BLEServerCallbacks {
     Serial.println("📢 Advertising restarted");
   }
 };
+
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+Arduino_ESP32SPI V_bus = Arduino_ESP32SPI(V_TFT_DC, V_TFT_CS, V_TFT_SCK, V_TFT_MOSI, V_TFT_MISO);
+Arduino_ILI9488 V_display = Arduino_ILI9488(&V_bus, V_TFT_RESET);
 
 const unsigned char MarilynMonroe[] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xf8, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -118,8 +117,23 @@ const unsigned char MarilynMonroe[] PROGMEM = {
 
 void setup(void)
 {
+  
   Serial.begin(9600); //기존의 기본 시리얼
-  Serial.println("🚀 Starting BLE work!");
+
+  Wire.begin(21, 22);  // 예: Wire.begin(21, 22);
+
+  V_display.begin();
+  V_display.fillScreen(BLACK);
+  V_display.setRotation(3);
+  V_display.setTextSize(2);
+  V_display.setTextColor(BLUE,WHITE);
+
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  
+  display.clearDisplay();
+  display.drawBitmap(0, 0,  MarilynMonroe, 128, 64, WHITE);
+  display.display();
+
+  dht.begin();
 
   // BLE 초기화
   BLEDevice::init("MyESP32");
@@ -146,93 +160,81 @@ void setup(void)
   pAdvertising->setMinPreferred(0x06);  // iOS compatibility
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
-
-  Serial.println("✅ BLE setup complete! You can now connect in your phone app.");
-
-  V_display.begin();
-  V_display.setRotation(3);
-  V_display.setCursor(40, 20);
-  V_display.setTextSize(2);
-  V_display.setTextColor(BLUE,WHITE);
-  V_display.fillRect(150, 200, 100, 100, RED);  // 여유 있게 위치 조정
-
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  
-  display.clearDisplay();
-  display.drawBitmap(0, 0,  MarilynMonroe, 128, 64, WHITE);
-  display.display();
-
-  dht.begin();
 }
+// led rgb window motor
+char str[40] = "00000000 0 0 0\r\n";
 
 char r_str[100] = "";  // 수신 버퍼
 int idx = 0;           // 현재 위치
 
 void loop() {
+  
+  // BLE 통신을 받아옴
   if (deviceConnected) {
     String value = pCharacteristic->getValue();
 
     if (value.length() > 0) {
-      char input[] = "0,00000000,0,0,24,0,0";
-      int values[10];  // 최대 10개까지 저장 가능
-      int i = 0;
-    }
-    char* token = strtok(input, ",");
-    while (token != NULL && i < 10) {
-      values[i++] = atoi(token);  // 문자열을 정수로 변환하여 저장
-      token = strtok(NULL, ",");  
-    }
-      // 결과 확인
-    for (int j = 0; j < i; j++) {
-      Serial.print("values[");
-      Serial.print(j);
-      Serial.print("] = ");
-      Serial.println(values[j]);
-    }
+      Serial.println(value);
 
-      pCharacteristic->setValue("");  // 데이터 초기화
+      // 최대 10개 항목 저장 가능한 배열
+      String parts[10];
+      int index = 0;
+
+      while (value.length() > 0) {
+        int commaIndex = value.indexOf(',');
+
+        if (commaIndex == -1) {
+          parts[index++] = value;
+          break;
+        }
+
+        parts[index++] = value.substring(0, commaIndex);
+        value = value.substring(commaIndex + 1);
+      }
+
+      // 배열 출력 테스트
+      for (int i = 0; i < index; i++) {
+        Serial.print("Part[");
+        Serial.print(i);
+        Serial.print("]: ");
+        Serial.println(parts[i]);
+      }
+
+      // 데이터 초기화
+      pCharacteristic->setValue("");
+    }
+  }
+
+
+  // Atmega128 통신을 받아옴
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == '\n' || c == '\r') {
+      if (idx > 0) {
+        r_str[idx] = '\0';  // 문자열 끝 표시
+        Serial.println(r_str);
+        idx = 0;            // 버퍼 초기화
+      }
+    } else {
+      if (idx < sizeof(r_str) - 1) {
+        r_str[idx++] = c;   // 버퍼에 저장
+      }
     }
   }
 
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
 
-  V_display.setTextColor(BLUE, WHITE); // 글자 파란색, 배경 흰색
-  V_display.setTextSize(2);
-
-  V_display.setCursor(10, 20);
+  V_display.setCursor(50, 50);
   V_display.print("Temp: ");
   V_display.print(temp);
   V_display.print(" C");
 
-  V_display.setCursor(10, 50);
+  V_display.setCursor(50, 70);
   V_display.print("Humidity: ");
   V_display.print(humidity);
   V_display.print('%');
-
-  while (Serial.available()) {
-    char c = Serial.read();
-
-    if (c == '\n' || c == '\r') {
-      if (idx > 0) {
-        r_str[idx] = '\0'; 
-        Serial.println(r_str);
-        int brightness = 0;
-        int water = 0;
-        char* token = strtok(r_str, ",");
-        if (token != NULL) {
-          brightness = atoi(token);
-          token = strtok(NULL, ",");
-          if (token != NULL) {
-            water = atoi(token);
-          }
-        }
-        idx = 0;  // 수신 버퍼 초기화
-      }
-    } else {
-      if (idx < sizeof(r_str) - 1) {
-        r_str[idx++] = c;
-      }
-    }
-  }
+  
   delay(1000);
 }
