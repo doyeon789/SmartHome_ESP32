@@ -100,52 +100,40 @@ int main(void) {
 		received = rx0_ch();
 		if (received == '\n' || received == '\r') {
 			r_str[idx] = '\0';     // 끝 표시
-
+			// LED
 			for (int i = 0; i < 8; i++) { // 01234567
 				if (r_str[i] == '0')
 				PORTA &= ~(1 << i);
 				else if (r_str[i] == '1')
 				PORTA |= (1 << i);
-			}		
-			rgb_state = r_str[8] - '0';
-			if(rgb_state == 0){ // 꺼짐
-				PORTD &= ~(1<<PD0);
-				PORTD &= ~(1<<PD1);
-				PORTD &= ~(1<<PD2);
 			}
-			else if(rgb_state == 1){ // 초록
-				PORTD &= ~(1<<PD0);
-				PORTD |= (1<<PD1);
-				PORTD &= ~(1<<PD2);
+			// RGBLED
+			if(r_str[8] == '0'){
+				PORTD &= ~(1<<1);
 			}
-			else if(rgb_state = 2){ //빨강
-				PORTD &= (1<<PD0);
-				PORTD &= ~(1<<PD1);
-				PORTD |= ~(1<<PD2);
+			if(r_str[8] == '1'){
+				PORTD |= (1<<1);
 			}
-			switch(r_str[9] - '0'){
-				case 0:
+			//Window 
+			if(r_str[9] == '0'){
 				servo_set_angle(0);
-				break;
-				case 1:
+			}
+			if(r_str[9] == '1'){
 				servo_set_angle(90);
-				break;
 			}
-			switch(r_str[10] - '0'){
-				case 0:
+			//MOTOR
+			if(r_str[10] == '0'){
 				mortor_set_speed(0);
-				break;
-				case 1:
-				mortor_set_speed(30);
-				break;
-				case 2:
-				mortor_set_speed(50);
-				break;
-				default:
-				mortor_set_speed(70);
-				break;
 			}
-
+			if(r_str[10] == '1'){
+				mortor_set_speed(30);
+			}
+			if(r_str[10] == '2'){
+				mortor_set_speed(50);
+			}
+			if(r_str[10] == '3'){
+				mortor_set_speed(70);
+			}
 			idx = 0;
 			memset(r_str, 0, 20);
 		}
