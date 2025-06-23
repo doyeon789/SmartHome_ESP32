@@ -6,18 +6,6 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 
-// BLE 서비스 및 특성 UUID 정의
-#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-
-// 온습도 센서 초기화
-DHT dht(16, DHT11);
-
-// BLE 관련 전역 변수
-BLEServer* pServer = nullptr;
-BLECharacteristic* pCharacteristic = nullptr;
-bool deviceConnected = false;
-
 // OLED 디스플레이 크기 정의
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -30,6 +18,17 @@ bool deviceConnected = false;
 #define V_TFT_DC      2
 #define V_TFT_RESET   4
 
+// BLE 서비스 및 특성 UUID 정의
+#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+
+// 온습도 센서 초기화
+DHT dht(16, DHT11);
+
+// BLE 관련 전역 변수
+BLEServer* pServer = nullptr;
+BLECharacteristic* pCharacteristic = nullptr;
+bool deviceConnected = false;
 
 // OLED 디스플레이 인스턴스 생성
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
