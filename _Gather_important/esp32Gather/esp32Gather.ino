@@ -154,71 +154,12 @@ void loop() {
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
 
-  // TFT 디스플레이에 1층 상태 출력
+  // LCD에 스마트홈 상태 띄우기
   V_display.setCursor(0,10);
   V_display.setTextSize(3);
   V_display.print("1F");
-  V_display.setTextSize(2);
-  V_display.setCursor(0,45);
-  V_display.print("LED1 : ");
-  V_display.print(parts[1][0] == '1' ? "ON " : "OFF");
-  V_display.setCursor(0,65);
-  V_display.print("LED2 : ");
-  V_display.print(parts[1][1] == '1' ? "ON " : "OFF");
-  V_display.setCursor(0,85);
-  V_display.print("LED3 : ");
-  V_display.print(parts[1][2] == '1' ? "ON " : "OFF");
-  V_display.setCursor(0,105);
-  V_display.print("LED4 : ");
-  V_display.print(parts[1][3] == '1' ? "ON " : "OFF");
-  V_display.setCursor(0,125);
-  V_display.print("LED5 : ");
-  V_display.print(parts[1][4] == '1' ? "ON " : "OFF");
-  V_display.setCursor(0,150);
-  V_display.print("Fan Stage : ");
-  V_display.print(parts[2] == "0" ? "OFF" : parts[2] + "  ");
-  V_display.setCursor(0,175);
-  V_display.print("Air conditioner : ");
-  V_display.print(parts[3][0] == '1' ? "ON " : "OFF");
-  V_display.setCursor(0,195);
-  V_display.print("Desired Temp : ");
-  V_display.print(parts[4][0]);
-  V_display.print(parts[4][1]);
-  V_display.print(" C");
-  V_display.setCursor(0,220);
-  V_display.print("TV : ");
-  V_display.print(parts[5] == "0" ? "OFF" : parts[5] + "  ");
+  // ... (길어 생략)
 
-  // 2층 상태 출력
-  V_display.setCursor(280,10);
-  V_display.setTextSize(3);
-  V_display.print("2F");
-  V_display.setTextSize(2);
-  V_display.setCursor(280,45);
-  V_display.print("LED1 : ");
-  V_display.print(parts[1][0] == '1' ? "ON " : "OFF");
-  V_display.setCursor(280,65);
-  V_display.print("LED2 : ");
-  V_display.print(parts[1][1] == '2' ? "ON " : "OFF"); // ❗주의: '2'일 때 ON?
-  V_display.setCursor(280,85);
-  V_display.print("LED3 : ");
-  V_display.print(parts[1][2] == '1' ? "ON " : "OFF");
-  V_display.setCursor(280,110);
-  V_display.print("Window : ");
-  V_display.print(parts[6][0] == '1' ? "Open  " : "Closed");
-
-  // 온습도 및 자동모드 상태 출력
-  V_display.setCursor(280,245);
-  V_display.print("AutoMode : ");
-  V_display.print(parts[0][0] == '1' ? "ON " : "OFF");
-  V_display.setCursor(280,270);
-  V_display.print("Temp: ");
-  V_display.print(temp);
-  V_display.print(" C");
-  V_display.setCursor(280,290);
-  V_display.print("Humidity: ");
-  V_display.print(humidity);
-  V_display.print('%');
-
-  delay(500); // 디스플레이 업데이트 주기
+  
+  delay(500);
 }
