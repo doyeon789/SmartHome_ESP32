@@ -6,18 +6,23 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 
+// BLE 서비스 및 특성 UUID 정의
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
+// 온습도 센서 초기화
 DHT dht(16, DHT11);
 
+// BLE 관련 전역 변수
 BLEServer* pServer = nullptr;
 BLECharacteristic* pCharacteristic = nullptr;
 bool deviceConnected = false;
 
+// OLED 디스플레이 크기 정의
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
+// TFT SPI 핀 정의
 #define V_TFT_SCK    18
 #define V_TFT_MOSI   23
 #define V_TFT_MISO   19
@@ -25,29 +30,16 @@ bool deviceConnected = false;
 #define V_TFT_DC      2
 #define V_TFT_RESET   4
 
-// 👉 콜백 클래스 정의
-class MyServerCallbacks: public BLEServerCallbacks {
-  void onConnect(BLEServer* pServer) {
-    deviceConnected = true;
-    Serial.println("✅ Device connected");
-  }
 
-  void onDisconnect(BLEServer* pServer) {
-    deviceConnected = false;
-    Serial.println("❌ Device disconnected");
-
-    delay(100);  // 잠깐 기다린 뒤
-    BLEDevice::startAdvertising();  // 💡 다시 광고 시작
-    Serial.println("📢 Advertising restarted");
-  }
-};
-
-
+// OLED 디스플레이 인스턴스 생성
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+// TFT 디스플레이 인스턴스 생성
 Arduino_ESP32SPI V_bus = Arduino_ESP32SPI(V_TFT_DC, V_TFT_CS, V_TFT_SCK, V_TFT_MOSI, V_TFT_MISO);
 Arduino_ILI9488 V_display = Arduino_ILI9488(&V_bus, V_TFT_RESET);
 
+// 비트맵 이미지 데이터 (Marilyn Monroe)
+//const unsigned char MarilynMonroe[] PROGMEM = { /* 생략 */ };
 const unsigned char MarilynMonroe[] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xf8, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xc0, 0x1f, 0xff, 0xff, 0xf0, 0x41, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -115,31 +107,46 @@ const unsigned char MarilynMonroe[] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7f, 0xff, 0xff, 0xff
 };
 
+// BLE 기기 연결/해제 콜백 정의
+class MyServerCallbacks: public BLEServerCallbacks {
+  void onConnect(BLEServer* pServer) {
+    deviceConnected = true;
+    Serial.println("✅ Device connected");
+  }
+
+  void onDisconnect(BLEServer* pServer) {
+    deviceConnected = false;
+    Serial.println("❌ Device disconnected");
+    delay(100);
+    BLEDevice::startAdvertising(); // 연결 해제시 다시 광고 시작
+    Serial.println("📢 Advertising restarted");
+  }
+};
+
+
 void setup(void)
 {
-  
-  Serial.begin(9600); //기존의 기본 시리얼
+  Serial.begin(9600);  // 시리얼 통신 시작
+  Wire.begin(21, 22);  // I2C 핀 설정
 
-  Wire.begin(21, 22);  // 예: Wire.begin(21, 22);
-
+  // TFT 디스플레이 초기화
   V_display.begin();
   V_display.fillScreen(WHITE);
   V_display.setRotation(3);
   V_display.setTextColor(CYAN,WHITE);
 
+  // OLED 디스플레이 초기화 및 비트맵 표시
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  
   display.clearDisplay();
   display.drawBitmap(0, 0,  MarilynMonroe, 128, 64, WHITE);
   display.display();
 
-  dht.begin();
+  dht.begin(); // 온습도 센서 시작
 
-  // BLE 초기화
+  // BLE 초기화 및 설정
   BLEDevice::init("MyESP32");
-
-  // 서버, 서비스, 특성 생성
   pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new MyServerCallbacks());  // 콜백 등록
+  pServer->setCallbacks(new MyServerCallbacks());
 
   BLEService* pService = pServer->createService(SERVICE_UUID);
 
@@ -148,80 +155,73 @@ void setup(void)
                       BLECharacteristic::PROPERTY_READ |
                       BLECharacteristic::PROPERTY_WRITE
                     );
-
   pCharacteristic->setValue("Hello World says ESP32!");
   pService->start();
 
-  // 광고 설정 및 시작
+  // BLE 광고 시작
   BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID);
   pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06);  // iOS compatibility
+  pAdvertising->setMinPreferred(0x06);
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
 }
-// led rgb window motor
-char str[40] = "00000000000\r\n";
 
-char r_str[100] = "";  // 수신 버퍼
-int idx = 0;           // 현재 위치
+// BLE 수신 데이터 처리용 문자열 및 인덱스
+char str[40] = "00000000000\r\n";
+char r_str[100] = "";
+int idx = 0;
 
 void loop() {
-  static String parts[10];
+  static String parts[10]; // BLE 수신 데이터를 ',' 기준으로 나눠 저장
 
-  // BLE 통신을 받아옴
+  // BLE에서 수신된 데이터 처리
   if (deviceConnected) {
     String value = pCharacteristic->getValue();
 
     if (value.length() > 0) {
-      // 최대 10개 항목 저장 가능한 배열
       int index = 0;
-
       while (value.length() > 0) {
         int commaIndex = value.indexOf(',');
-
         if (commaIndex == -1) {
           parts[index++] = value;
           break;
         }
-
         parts[index++] = value.substring(0, commaIndex);
         value = value.substring(commaIndex + 1);
       }
 
-      Serial.write(parts[1].c_str()); //led
-      Serial.write(parts[3].c_str()); //rgb
-      Serial.write(parts[6].c_str()); //motor1
-      Serial.write(parts[2].c_str()); //motor2
+      // BLE 수신값을 시리얼로 전송 → ATmega128에 전달
+      Serial.write(parts[1].c_str()); // LED
+      Serial.write(parts[3].c_str()); // RGB
+      Serial.write(parts[6].c_str()); // Motor1
+      Serial.write(parts[2].c_str()); // Motor2
       Serial.write('\n');
 
-      // 데이터 초기화
-      pCharacteristic->setValue("");
+      pCharacteristic->setValue(""); // 수신 데이터 초기화
     }
   }
 
-
-  // Atmega128 통신을 받아옴
+  // ATmega128 → ESP32 데이터 수신
   while (Serial.available()) {
     char c = Serial.read();
-
     if (c == '\n' || c == '\r') {
       if (idx > 0) {
-        r_str[idx] = '\0';  // 문자열 끝 표시
-        //Serial.println(r_str);
-        idx = 0;            // 버퍼 초기화
+        r_str[idx] = '\0';  // 문자열 종료
+        idx = 0;
       }
     } else {
       if (idx < sizeof(r_str) - 1) {
-        r_str[idx++] = c;   // 버퍼에 저장
+        r_str[idx++] = c;  // 수신 문자 저장
       }
     }
   }
 
+  // 온습도 측정
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
 
-// 1층
+  // TFT 디스플레이에 1층 상태 출력
   V_display.setCursor(0,10);
   V_display.setTextSize(3);
   V_display.print("1F");
@@ -243,11 +243,7 @@ void loop() {
   V_display.print(parts[1][4] == '1' ? "ON " : "OFF");
   V_display.setCursor(0,150);
   V_display.print("Fan Stage : ");
-  if (parts[2] == "0") {
-    V_display.print("OFF");
-  } else {
-    V_display.print(parts[2] + "  ");
-  }
+  V_display.print(parts[2] == "0" ? "OFF" : parts[2] + "  ");
   V_display.setCursor(0,175);
   V_display.print("Air conditioner : ");
   V_display.print(parts[3][0] == '1' ? "ON " : "OFF");
@@ -256,16 +252,11 @@ void loop() {
   V_display.print(parts[4][0]);
   V_display.print(parts[4][1]);
   V_display.print(" C");
-
   V_display.setCursor(0,220);
   V_display.print("TV : ");
-  if (parts[5] == "0") {
-    V_display.print("OFF");
-  } else {
-    V_display.print(parts[5] + "  ");
-  }
+  V_display.print(parts[5] == "0" ? "OFF" : parts[5] + "  ");
 
-  //2층
+  // 2층 상태 출력
   V_display.setCursor(280,10);
   V_display.setTextSize(3);
   V_display.print("2F");
@@ -275,7 +266,7 @@ void loop() {
   V_display.print(parts[1][0] == '1' ? "ON " : "OFF");
   V_display.setCursor(280,65);
   V_display.print("LED2 : ");
-  V_display.print(parts[1][1] == '2' ? "ON " : "OFF");
+  V_display.print(parts[1][1] == '2' ? "ON " : "OFF"); // ❗주의: '2'일 때 ON?
   V_display.setCursor(280,85);
   V_display.print("LED3 : ");
   V_display.print(parts[1][2] == '1' ? "ON " : "OFF");
@@ -283,18 +274,18 @@ void loop() {
   V_display.print("Window : ");
   V_display.print(parts[6][0] == '1' ? "Open  " : "Closed");
 
-
-  // 그 밖
+  // 온습도 및 자동모드 상태 출력
   V_display.setCursor(280,245);
   V_display.print("AutoMode : ");
   V_display.print(parts[0][0] == '1' ? "ON " : "OFF");
-  V_display.setCursor(280, 270);
+  V_display.setCursor(280,270);
   V_display.print("Temp: ");
   V_display.print(temp);
   V_display.print(" C");
-  V_display.setCursor(280, 290);
+  V_display.setCursor(280,290);
   V_display.print("Humidity: ");
   V_display.print(humidity);
   V_display.print('%');
-  delay(500);
+
+  delay(500); // 디스플레이 업데이트 주기
 }
