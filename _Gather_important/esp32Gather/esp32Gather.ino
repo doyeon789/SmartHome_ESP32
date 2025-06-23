@@ -296,5 +296,5 @@ void loop() {
   V_display.print("Humidity: ");
   V_display.print(humidity);
   V_display.print('%');
-  
+  delay(500);
 }
