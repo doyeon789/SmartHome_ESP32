@@ -5,6 +5,8 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <Arduino.h>
+
 
 // OLED 디스플레이 크기 정의
 #define SCREEN_WIDTH 128
@@ -194,9 +196,20 @@ void loop() {
       Serial.write(parts[1].c_str()); // LED
       Serial.write(parts[3].c_str()); // RGB
       Serial.write(parts[6].c_str()); // Motor1
-      Serial.write(parts[2].c_str()); // Motor2
       Serial.write('\n');
 
+      if(parts[2] == "0"){
+        analogWrite(32, 0);
+      }
+      else if (parts[2] == "1") {
+        analogWrite(32, 90);
+      }
+      else if (parts[2] == "2") {
+         analogWrite(32, 160);
+      }
+      else if (parts[2] == "3") {
+        analogWrite(32, 210);
+      }
       pCharacteristic->setValue(""); // 수신 데이터 초기화
     }
   }
@@ -266,10 +279,10 @@ void loop() {
   V_display.print(parts[1][0] == '1' ? "ON " : "OFF");
   V_display.setCursor(280,65);
   V_display.print("LED2 : ");
-  V_display.print(parts[1][1] == ‘1’ ? "ON " : "OFF"); 
+  V_display.print(parts[1][1] == '1' ? "ON " : "OFF"); 
   V_display.setCursor(280,85);
   V_display.print("LED3 : ");
-  V_display.print(parts[1][2] == '1' ? "ON " : "OFF");
+  V_display.print(parts[1][2] == '1'? "ON " : "OFF");
   V_display.setCursor(280,110);
   V_display.print("Window : ");
   V_display.print(parts[6][0] == '1' ? "Open  " : "Closed");
