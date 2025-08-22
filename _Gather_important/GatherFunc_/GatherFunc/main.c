@@ -131,28 +131,8 @@ int main(void) {
 			if(r_str[8] == '1'){
 				PORTD |= (1<<1);   // 켜기
 			}
+		}
 
-			// [9] 창문(서보) 제어
-			if(r_str[9] == '0'){
-				servo_set_angle(0);    // 닫기
-			}
-			if(r_str[9] == '1'){
-				servo_set_angle(90);   // 열기
-			}
-
-			// [10] 모터 속도 제어
-			if(r_str[10] == '0'){
-				mortor_set_speed(0);   // 정지
-			}
-			if(r_str[10] == '1'){
-				mortor_set_speed(30);  // 저속
-			}
-			if(r_str[10] == '2'){
-				mortor_set_speed(50);  // 중속
-			}
-			if(r_str[10] == '3'){
-				mortor_set_speed(70);  // 고속
-			}
 
 			idx = 0;  // 다음 수신을 위해 인덱스 초기화
 			memset(r_str, 0, 20);  // 문자열 초기화
